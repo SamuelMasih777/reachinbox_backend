@@ -2,11 +2,13 @@ import esClient from "../config/elasticSearch";
 import slackService from "./slackService";
 import axios from "axios";
 import geminiAIService from "./geminiAIService";
+import hugginFaceService from "./hugginFaceService";
+import aiReplyService from "./aiReplyService";
 
 class EmailService {
     async storeEmail(email: any) {
         try {
-            const category = await geminiAIService.categorizeEmail( email.subject || '', email.body ||'', email.from)
+            const category = await hugginFaceService.categorizeEmail( email.subject || '', email.body ||'', email.from)
             const categorizedEmail = {
                 ...email,
                 category,
@@ -72,6 +74,13 @@ class EmailService {
         });
 
         return result.hits.hits.map((hit: any) => hit._source);
+    }
+    async suggestReply(emailId: string) {
+        const response = await esClient.get({ index: 'emails', id: emailId });
+        const email = response._source;
+
+        const suggestedReply = await aiReplyService.generateSuggestedReply(email);
+        return { suggestedReply };
     }
 
 }

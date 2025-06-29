@@ -15,6 +15,19 @@ class EmailController {
         }
         return result;
     }
+    async suggestReply(emailId: string) {
+        const { httpStatus } = config
+        const result: any = { status: 500, message: 'Something went wrong', data: null };
+        try {
+            result.data = await emailService.suggestReply(emailId);
+            result.status = httpStatus.success;
+        } catch (error: any) {
+            console.error(`Error in suggestReply: ${error}`);
+            result.message = error.message || 'Failed to fetch suggestReply';
+            result.status = httpStatus.serverError;
+        }
+        return result;
+    }
 }
 
 export default new EmailController();
